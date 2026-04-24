@@ -17,3 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
+
+// Allow overriding storage path via env (e.g. /tmp on Vercel)
+if ($storagePath = $_ENV['APP_STORAGE'] ?? null) {
+    app()->useStoragePath($storagePath);
+}
+
+return app();
