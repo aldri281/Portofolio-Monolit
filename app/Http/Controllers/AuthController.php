@@ -25,9 +25,11 @@ class AuthController extends Controller
             return redirect()->intended('/admin/projects');
         }
 
-        return back()->withErrors([
-            'email' => 'Email atau password salah.',
-        ])->onlyInput('email');
+        // Render ulang halaman login dengan error langsung via Inertia props
+        // Ini tidak bergantung pada session flash yang rentan di Vercel serverless
+        return Inertia::render('admin/login', [
+            'errors' => ['email' => 'Email atau password salah.'],
+        ])->toResponse($request)->setStatusCode(422);
     }
 
     public function logout(Request $request)
