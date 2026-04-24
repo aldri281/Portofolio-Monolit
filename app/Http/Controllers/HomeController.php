@@ -13,7 +13,7 @@ class HomeController extends Controller
 {
     public function index()
     {
-        $projects = Project::orderBy('created_at', 'desc')->get();
+        $projects = Project::with('images')->orderBy('created_at', 'desc')->get();
         $skills = Skill::orderBy('category')->orderBy('name')->get();
         $certificates = Certificate::orderBy('id', 'desc')->get();
         $profile = Profile::first();
