@@ -33,7 +33,8 @@ $_SERVER['APP_STORAGE'] = $storagePath;
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
-    // If you need to debug later, you can re-enable detailed output here
-    error_log($e->getMessage());
-    echo "<h1>Internal Server Error</h1>";
+    echo "<h1>Deployment Error</h1>";
+    echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
+    echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
 }
