@@ -30,6 +30,14 @@ foreach ($dirs as $dir) {
 $_ENV['APP_STORAGE'] = $storagePath;
 $_SERVER['APP_STORAGE'] = $storagePath;
 
+// Explicitly set cache paths to /tmp to avoid read-only filesystem errors
+$cachePath = $storagePath . '/bootstrap/cache';
+$_ENV['APP_SERVICES_CACHE'] = $cachePath . '/services.php';
+$_ENV['APP_PACKAGES_CACHE'] = $cachePath . '/packages.php';
+$_ENV['APP_CONFIG_CACHE'] = $cachePath . '/config.php';
+$_ENV['APP_ROUTES_CACHE'] = $cachePath . '/routes-v7.php';
+$_ENV['APP_EVENTS_CACHE'] = $cachePath . '/events.php';
+
 try {
     require __DIR__ . '/../public/index.php';
 } catch (\Throwable $e) {
