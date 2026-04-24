@@ -1,9 +1,8 @@
 <?php
 
-// Enable error reporting for debugging
+// Suppress deprecated notices from vendor/framework files in production
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 // On Vercel, only /tmp is writable. Create required Laravel directories there.
 $storagePath = '/tmp/storage';
@@ -16,7 +15,9 @@ $dirs = [
 ];
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
-        mkdir($dir, 0755, true);
+        if (!mkdir($dir, 0755, true)) {
+            die("Failed to create storage directory: $dir");
+        }
     }
 }
 
@@ -24,4 +25,11 @@ foreach ($dirs as $dir) {
 $_ENV['APP_STORAGE'] = $storagePath;
 $_SERVER['APP_STORAGE'] = $storagePath;
 
-require __DIR__ . '/../public/index.php';
+try {
+    require __DIR__ . '/../public/index.php';
+} catch (\Throwable $e) {
+    echo "<h1>Deployment Error</h1>";
+    echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
+    echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
+    echo "<pre>" . $e->getTraceAsString() . "</pre>";
+}
