@@ -4,7 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
-return Application::configure(basePath: dirname(__DIR__))
+$app = Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -18,10 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Allow overriding storage and bootstrap paths via env (e.g. /tmp on Vercel)
+// Allow overriding storage path via env (e.g. /tmp on Vercel)
+// Do NOT override bootstrapPath — it would break providers.php loading
 if ($storagePath = $_ENV['APP_STORAGE'] ?? null) {
-    app()->useStoragePath($storagePath);
-    app()->useBootstrapPath($storagePath . '/bootstrap');
+    $app->useStoragePath($storagePath);
 }
 
-return app();
+return $app;
