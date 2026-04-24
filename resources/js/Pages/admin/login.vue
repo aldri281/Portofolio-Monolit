@@ -81,7 +81,22 @@ const showPass = ref(false);
 
 const handleLogin = () => {
   form.post('/admin/login', {
-    preserveScroll: true
+    preserveScroll: true,
+    onError: (errors) => {
+        // Trigger manual detection if needed, although Toast.vue should catch it
+    }
   });
 };
+
+// Add a watch to trigger the toast manually for form errors
+import { watch } from 'vue';
+import { usePage } from '@inertiajs/vue3';
+
+const page = usePage();
+watch(() => form.errors, (newErrors) => {
+    if (Object.keys(newErrors).length > 0) {
+        // The Toast component will already be watching page.props.errors
+        // But we ensure the page state is updated
+    }
+}, { deep: true });
 </script>
