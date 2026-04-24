@@ -106,7 +106,7 @@
 </template>
 
 <script setup>
-import { watch, provide } from 'vue';
+import { ref, watch, provide } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import Toast from '@/Components/Toast.vue';
 
