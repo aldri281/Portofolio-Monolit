@@ -61,12 +61,16 @@
         </button>
       </form>
     </div>
+
+    <!-- Premium Toast notification -->
+    <Toast />
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
+import Toast from '@/Components/Toast.vue';
 
 const form = useForm({
   email: '',
