@@ -38,6 +38,11 @@ watch(() => page.props.errors, (errs) => {
     }
 }, { deep: true, immediate: true });
 
+onMounted(() => {
+    window.addEventListener('show-toast', (e) => {
+        triggerToast(e.detail.message, e.detail.type);
+    });
+});
 </script>
 
 <template>

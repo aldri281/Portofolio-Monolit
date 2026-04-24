@@ -83,7 +83,12 @@ const handleLogin = () => {
   form.post('/admin/login', {
     preserveScroll: true,
     onError: (errors) => {
-        // Trigger manual detection if needed, although Toast.vue should catch it
+        const firstError = Object.values(errors)[0];
+        if (firstError) {
+            window.dispatchEvent(new CustomEvent('show-toast', { 
+                detail: { message: firstError, type: 'error' } 
+            }));
+        }
     }
   });
 };
