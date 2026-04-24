@@ -18,9 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })->create();
 
-// Allow overriding storage path via env (e.g. /tmp on Vercel)
+// Allow overriding storage and bootstrap paths via env (e.g. /tmp on Vercel)
 if ($storagePath = $_ENV['APP_STORAGE'] ?? null) {
     app()->useStoragePath($storagePath);
+    app()->useBootstrapPath($storagePath . '/bootstrap');
 }
 
 return app();

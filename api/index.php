@@ -4,6 +4,10 @@
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 ini_set('display_errors', 1);
 
+// Force LOG_CHANNEL to stderr for Vercel
+$_ENV['LOG_CHANNEL'] = 'stderr';
+$_SERVER['LOG_CHANNEL'] = 'stderr';
+
 // On Vercel, only /tmp is writable. Create required Laravel directories there.
 $storagePath = '/tmp/storage';
 $dirs = [
@@ -12,6 +16,7 @@ $dirs = [
     $storagePath . '/framework/views',
     $storagePath . '/logs',
     $storagePath . '/app/public',
+    $storagePath . '/bootstrap/cache',
 ];
 foreach ($dirs as $dir) {
     if (!is_dir($dir)) {
