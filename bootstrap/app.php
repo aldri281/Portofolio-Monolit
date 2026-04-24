@@ -15,7 +15,13 @@ $app = Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Throwable $e) {
+            echo "<h1>Detailed Error Analysis</h1>";
+            echo "<p><b>Message:</b> " . $e->getMessage() . "</p>";
+            echo "<p><b>File:</b> " . $e->getFile() . " on line " . $e->getLine() . "</p>";
+            echo "<pre>" . $e->getTraceAsString() . "</pre>";
+            die();
+        });
     })->create();
 
 // Allow overriding storage path via env (e.g. /tmp on Vercel)
