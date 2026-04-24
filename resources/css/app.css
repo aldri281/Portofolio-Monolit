@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@import "tailwindcss";
+
+@source "../js/**/*.vue";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-accent-primary: #c254d3;
+  --color-accent-secondary: #369bce;
+  --color-accent-tertiary: #8690d4;
+  
+  --radius-soft: 2rem;
+  --radius-button: 1.5rem;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    @apply antialiased relative min-h-screen transition-colors duration-300;
+    @apply bg-white dark:bg-[#080B16] text-slate-900 dark:text-slate-100;
+  }
+
+  /* Force link reset */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  ::selection {
+    @apply bg-accent-secondary/30 text-accent-secondary;
+  }
+}
+
+@layer utilities {
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .bg-grid {
+    background-image: linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: center center;
+  }
+
+  .dark .bg-grid {
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  }
+
+  .glass-chip {
+    @apply bg-white/70 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/50 dark:border-white/10 shadow-sm;
+  }
+
+  .soft-radius {
+    border-radius: 2rem;
+  }
+
+  .button-radius {
+    border-radius: 1.5rem;
+  }
+}
+
+/* Standalone class - outside @layer to prevent Tailwind v4 from purging it */
+.gradient-text {
+  background: linear-gradient(to right, var(--color-accent-primary), var(--color-accent-tertiary), var(--color-accent-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}

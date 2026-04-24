@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SiteSettingController extends Controller
 {
@@ -11,8 +12,7 @@ class SiteSettingController extends Controller
      */
     public function index()
     {
-        $settings = \App\Models\SiteSetting::all()->pluck('value', 'key');
-        return response()->json($settings);
+        return Inertia::render('admin/settings');
     }
 
     /**
@@ -27,13 +27,10 @@ class SiteSettingController extends Controller
         foreach ($validated['settings'] as $key => $value) {
             \App\Models\SiteSetting::updateOrCreate(
                 ['key' => $key],
-                ['value' => $value]
+                ['value' => $value ?? '']
             );
         }
 
-        return response()->json([
-            'message' => 'Settings updated successfully',
-            'settings' => \App\Models\SiteSetting::all()->pluck('value', 'key'),
-        ]);
+        return redirect()->back()->with('success', 'Settings updated.');
     }
 }

@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
     public function index()
     {
-        return response()->json(Project::with('images')->orderBy('id', 'desc')->get());
+        return Inertia::render('admin/projects/index', [
+            'projects' => Project::with('images')->orderBy('id', 'desc')->get()
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('admin/projects/create');
     }
 
     public function store(Request $request)
@@ -26,12 +34,14 @@ class ProjectController extends Controller
         ]);
 
         $project = Project::create($validated);
-        return response()->json($project->load('images'), 201);
+        return redirect('/admin/projects')->with('success', 'Project created.');
     }
 
-    public function show(Project $project)
+    public function edit(Project $project)
     {
-        return response()->json($project->load('images'));
+        return Inertia::render('admin/projects/edit', [
+            'project' => $project->load('images')
+        ]);
     }
 
     public function update(Request $request, Project $project)
@@ -48,12 +58,12 @@ class ProjectController extends Controller
         ]);
 
         $project->update($validated);
-        return response()->json($project->load('images'));
+        return redirect('/admin/projects')->with('success', 'Project updated.');
     }
 
     public function destroy(Project $project)
     {
         $project->delete();
-        return response()->json(null, 204);
+        return redirect('/admin/projects')->with('success', 'Project deleted.');
     }
 }

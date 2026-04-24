@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Skill;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class SkillController extends Controller
 {
     public function index()
     {
-        return response()->json(Skill::all());
+        return Inertia::render('admin/skills/index', [
+            'skills' => Skill::all()
+        ]);
     }
 
     public function store(Request $request)
@@ -20,30 +23,13 @@ class SkillController extends Controller
             'icon' => 'nullable|string',
         ]);
 
-        $skill = Skill::create($validated);
-        return response()->json($skill, 201);
-    }
-
-    public function show(Skill $skill)
-    {
-        return response()->json($skill);
-    }
-
-    public function update(Request $request, Skill $skill)
-    {
-        $validated = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'category' => 'sometimes|required|string|max:255',
-            'icon' => 'nullable|string',
-        ]);
-
-        $skill->update($validated);
-        return response()->json($skill);
+        Skill::create($validated);
+        return redirect()->back()->with('success', 'Skill created.');
     }
 
     public function destroy(Skill $skill)
     {
         $skill->delete();
-        return response()->json(null, 204);
+        return redirect()->back()->with('success', 'Skill deleted.');
     }
 }
