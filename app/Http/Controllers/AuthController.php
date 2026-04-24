@@ -25,6 +25,14 @@ class AuthController extends Controller
             return redirect()->intended('/admin/projects');
         }
 
+        // TEST NUKLIR: Jika ini muncul, berarti server SUDAH tahu login gagal.
+        dd([
+            'status' => 'LOGIN GAGAL TERDETEKSI DI SERVER',
+            'email_input' => $request->email,
+            'session_id' => session()->getId(),
+            'has_errors' => session()->get('errors') ? 'yes' : 'no'
+        ]);
+
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ])->onlyInput('email');
