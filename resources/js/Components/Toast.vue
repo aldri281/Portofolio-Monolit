@@ -22,11 +22,11 @@ const triggerToast = (msg, toastType) => {
 };
 
 // Watch for flash messages from Inertia
-watch(() => page.props.flash.success, (msg) => {
+watch(() => page.props.flash?.success, (msg) => {
     if (msg) triggerToast(msg, 'success');
 }, { immediate: true });
 
-watch(() => page.props.flash.error, (msg) => {
+watch(() => page.props.flash?.error, (msg) => {
     if (msg) triggerToast(msg, 'error');
 }, { immediate: true });
 
