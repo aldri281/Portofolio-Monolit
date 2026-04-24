@@ -22,6 +22,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            session()->save();
             return redirect()->intended('/admin/projects');
         }
 

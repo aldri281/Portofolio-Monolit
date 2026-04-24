@@ -25,12 +25,16 @@ class CertificateController extends Controller
         ]);
 
         Certificate::create($validated);
-        return redirect()->back()->with('success', 'Certificate created.');
+        session()->flash('success', 'Certificate created.');
+        session()->save();
+        return redirect()->back();
     }
 
     public function destroy(Certificate $certificate)
     {
         $certificate->delete();
-        return redirect()->back()->with('success', 'Certificate deleted.');
+        session()->flash('success', 'Certificate deleted.');
+        session()->save();
+        return redirect()->back();
     }
 }

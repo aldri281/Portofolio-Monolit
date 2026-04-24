@@ -34,7 +34,9 @@ class ProjectController extends Controller
         ]);
 
         $project = Project::create($validated);
-        return redirect('/admin/projects')->with('success', 'Project created.');
+        session()->flash('success', 'Project created.');
+        session()->save();
+        return redirect('/admin/projects');
     }
 
     public function edit(Project $project)
@@ -58,12 +60,16 @@ class ProjectController extends Controller
         ]);
 
         $project->update($validated);
-        return redirect('/admin/projects')->with('success', 'Project updated.');
+        session()->flash('success', 'Project updated.');
+        session()->save();
+        return redirect('/admin/projects');
     }
 
     public function destroy(Project $project)
     {
         $project->delete();
-        return redirect('/admin/projects')->with('success', 'Project deleted.');
+        session()->flash('success', 'Project deleted.');
+        session()->save();
+        return redirect('/admin/projects');
     }
 }

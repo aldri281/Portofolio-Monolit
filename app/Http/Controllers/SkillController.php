@@ -24,12 +24,16 @@ class SkillController extends Controller
         ]);
 
         Skill::create($validated);
-        return redirect()->back()->with('success', 'Skill created.');
+        session()->flash('success', 'Skill created.');
+        session()->save();
+        return redirect()->back();
     }
 
     public function destroy(Skill $skill)
     {
         $skill->delete();
-        return redirect()->back()->with('success', 'Skill deleted.');
+        session()->flash('success', 'Skill deleted.');
+        session()->save();
+        return redirect()->back();
     }
 }

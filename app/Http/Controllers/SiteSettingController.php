@@ -31,6 +31,8 @@ class SiteSettingController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Settings updated.');
+        session()->flash('success', 'Settings updated.');
+        session()->save();
+        return redirect()->back();
     }
 }
