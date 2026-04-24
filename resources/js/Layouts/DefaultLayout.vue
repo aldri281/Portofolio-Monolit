@@ -79,12 +79,16 @@
         </div>
       </div>
     </footer>
+
+    <!-- Premium Toast notification -->
+    <Toast />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import Toast from '@/Components/Toast.vue';
 
 // Access globabl settings passed from Laravel
 const page = usePage();

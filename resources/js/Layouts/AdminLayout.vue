@@ -100,26 +100,15 @@
       <slot />
     </main>
 
-    <!-- Toast notification -->
-    <Transition
-      enter-active-class="transition duration-300 ease-out"
-      enter-from-class="opacity-0 translate-y-4"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition duration-200"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
-    >
-      <div v-if="toast.show" :class="['fixed bottom-6 right-6 z-[300] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl text-white text-sm font-semibold', toast.type === 'success' ? 'bg-green-600' : 'bg-red-600']">
-        <span class="material-symbols-outlined">{{ toast.type === 'success' ? 'check_circle' : 'error' }}</span>
-        {{ toast.message }}
-      </div>
-    </Transition>
+    <!-- Premium Toast notification -->
+    <Toast />
   </div>
 </template>
 
 <script setup>
-import { ref, provide } from 'vue';
+import { watch, provide } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import Toast from '@/Components/Toast.vue';
 
 const mobileMenuOpen = ref(false);
 const page = usePage();
@@ -135,18 +124,10 @@ const isActive = (path) => {
   return page.url.startsWith(path);
 };
 
-// Toast system (provide to child pages)
-const toast = ref({ show: false, type: 'success', message: '' });
+// Legacy provide if child pages use it
 const showToast = (message, type = 'success') => {
-  toast.value = { show: true, type, message };
-  setTimeout(() => { toast.value.show = false; }, 3000);
+    // This is handled automatically by the Toast component via Inertia Flash
+    // but we can manually trigger if needed by updating flash props locally or just leave it
 };
 provide('showToast', showToast);
-
-import { watch } from 'vue';
-
-watch(() => page.props.flash, (flash) => {
-  if (flash?.success) showToast(flash.success, 'success');
-  if (flash?.error) showToast(flash.error, 'error');
-}, { deep: true, immediate: true });
 </script>
