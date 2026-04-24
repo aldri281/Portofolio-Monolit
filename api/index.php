@@ -1,7 +1,9 @@
 <?php
 
-// Suppress deprecated notices from vendor/framework files in production
-error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+// Enable error reporting for debugging
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 // On Vercel, only /tmp is writable. Create required Laravel directories there.
 $storagePath = '/tmp/storage';
