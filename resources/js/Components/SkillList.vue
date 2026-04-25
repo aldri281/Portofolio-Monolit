@@ -20,7 +20,7 @@
       <div v-for="(categorySkills, categoryName) in groupedSkills" :key="categoryName" class="glass-chip dark:bg-slate-900/50 soft-radius p-6 md:p-10 space-y-8 border border-slate-50 dark:border-slate-800 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-300">
         <div class="flex items-center gap-5 border-b border-slate-100 dark:border-slate-800 pb-6 transition-colors duration-300">
           <div :class="['w-12 h-12 rounded-xl shadow-sm flex items-center justify-center transition-colors duration-300', getIconColorClass(categoryName)]" class="bg-white dark:bg-slate-800">
-            <span class="material-symbols-outlined text-2xl">{{ getCategoryIcon(categoryName) }}</span>
+            <span class="material-symbols-outlined text-2xl">{{ categorySkills[0]?.icon || 'widgets' }}</span>
           </div>
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{{ categoryName }}</h3>
         </div>
