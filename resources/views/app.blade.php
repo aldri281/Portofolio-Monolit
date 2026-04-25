@@ -286,20 +286,16 @@
         <script>
             (function() {
                 var pb = document.getElementById('loader-progress-bar');
-                var width = 10;
                 
-                // Slowly grow progress to 90%
-                var progressInterval = setInterval(function() {
-                    if (width < 90) {
-                        width += (90 - width) * 0.05; // Ease out growth
-                        if (pb) pb.style.width = width + '%';
-                    } else {
-                        clearInterval(progressInterval);
-                    }
-                }, 400);
-
-                // Global reference so app.js can clear it
-                window.loaderProgressInterval = progressInterval;
+                // Sync progress bar growth with the 3s timeout
+                if (pb) {
+                    // Set transition to 3 seconds for the initial growth
+                    pb.style.transition = 'width 3s linear';
+                    // Start moving to 90%
+                    setTimeout(function() {
+                        pb.style.width = '90%';
+                    }, 50);
+                }
 
                 // Emergency timeout: Force remove if app fails to mount in 3s
                 setTimeout(function() {

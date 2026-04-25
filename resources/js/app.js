@@ -17,11 +17,8 @@ createInertiaApp({
         const loader = document.getElementById('global-loader');
         const progressBar = document.getElementById('loader-progress-bar');
         
-        if (window.loaderProgressInterval) {
-            clearInterval(window.loaderProgressInterval);
-        }
-
         if (progressBar) {
+            progressBar.style.transition = 'width 0.3s ease-out';
             progressBar.style.width = '100%';
         }
 
@@ -36,7 +33,7 @@ createInertiaApp({
                     if (loader.parentNode) loader.remove();
                     console.log('Loader removed successfully.');
                 }, 600);
-            }, 400);
+            }, 300);
         }
 
         return app;
