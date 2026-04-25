@@ -33,11 +33,11 @@
           <p class="text-white font-semibold truncate">{{ skill.name }}</p>
           <p class="text-slate-500 text-xs mt-0.5">{{ skill.category }}</p>
         </div>
-        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
-          <button @click="openEditModal(skill)" class="text-slate-600 hover:text-[var(--accent-primary)] transition-all p-1">
-            <span class="material-symbols-outlined text-xl">edit</span>
+        <div class="flex items-center gap-1 transition-all">
+          <button @click="openEditModal(skill)" class="text-slate-500 hover:text-[var(--accent-primary)] transition-all p-1">
+            <span class="material-symbols-outlined text-xl">edit_square</span>
           </button>
-          <button @click="deleteSkill(skill.id)" class="text-slate-600 hover:text-red-400 transition-all p-1">
+          <button @click="deleteSkill(skill.id)" class="text-slate-500 hover:text-red-400 transition-all p-1">
             <span class="material-symbols-outlined text-xl">delete</span>
           </button>
         </div>

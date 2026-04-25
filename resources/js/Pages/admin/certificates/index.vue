@@ -34,12 +34,12 @@
             <p class="text-white font-semibold text-sm">{{ cert.name }}</p>
             <p class="text-slate-500 text-xs mt-0.5">{{ cert.organizer }} · {{ cert.duration }}</p>
           </div>
-          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          <div class="flex items-center gap-1 transition-all">
             <a v-if="cert.link" :href="cert.link" target="_blank" class="text-slate-500 hover:text-[var(--accent-primary)] transition-all p-1">
               <span class="material-symbols-outlined text-xl">open_in_new</span>
             </a>
             <button @click="openEditModal(cert)" class="text-slate-500 hover:text-[var(--accent-primary)] transition-all p-1">
-              <span class="material-symbols-outlined text-xl">edit</span>
+              <span class="material-symbols-outlined text-xl">edit_square</span>
             </button>
             <button @click="deleteCert(cert.id)" class="text-slate-500 hover:text-red-400 transition-all p-1">
               <span class="material-symbols-outlined text-xl">delete</span>
