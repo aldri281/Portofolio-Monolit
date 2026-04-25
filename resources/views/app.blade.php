@@ -237,6 +237,12 @@
 
             .terminal-dim { color: rgba(255, 255, 255, 0.4); }
             .terminal-pulse { animation: blink 1.5s infinite; }
+
+            /* Ensure loader disappears even if JS fails */
+            .loader-fallback-hide {
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
         </style>
     </head>
     <body class="font-sans antialiased">
@@ -275,6 +281,20 @@
         </div>
 
         @inertia
+
+        <!-- Emergency Loader Fallback -->
+        <script>
+            // If the app doesn't mount and remove the loader within 8 seconds, 
+            // force remove it so the user isn't stuck.
+            setTimeout(function() {
+                var loader = document.getElementById('global-loader');
+                if (loader) {
+                    console.warn('Inertia app took too long to mount. Force removing loader.');
+                    loader.style.opacity = '0';
+                    setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
+                }
+            }, 8000);
+        </script>
     </body>
 </html>
 

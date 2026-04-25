@@ -16,10 +16,13 @@ createInertiaApp({
         // Hide global loader after app is mounted
         const loader = document.getElementById('global-loader');
         if (loader) {
+            console.log('App mounted, removing loader...');
             loader.style.opacity = '0';
+            loader.style.pointerEvents = 'none'; // Prevent blocking clicks during fade
             setTimeout(() => {
-                loader.remove();
-            }, 500);
+                if (loader.parentNode) loader.remove();
+                console.log('Loader removed successfully.');
+            }, 600);
         }
 
         return app;
