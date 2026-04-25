@@ -9,9 +9,20 @@ createInertiaApp({
     title: (title) => `${title} - Portofolio Aldri`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
-        return createApp({ render: () => h(App, props) })
-            .use(plugin)
-            .mount(el);
+        const app = createApp({ render: () => h(App, props) });
+        app.use(plugin);
+        app.mount(el);
+
+        // Hide global loader after app is mounted
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.remove();
+            }, 500);
+        }
+
+        return app;
     },
     progress: {
         color: '#4B5563',
