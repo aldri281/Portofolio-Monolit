@@ -16,15 +16,11 @@ class HomeController extends Controller
         $projects = Project::with('images')->orderBy('created_at', 'desc')->get();
         $skills = Skill::orderBy('category')->orderBy('name')->get();
         $certificates = Certificate::orderBy('id', 'desc')->get();
-        $profile = Profile::first();
-        $settings = SiteSetting::all()->pluck('value', 'key')->toArray();
 
         return Inertia::render('index', [
             'projects' => $projects,
             'skills' => $skills,
             'certificates' => $certificates,
-            'profile' => $profile,
-            'settings' => $settings,
         ]);
     }
 }

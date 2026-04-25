@@ -44,6 +44,8 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'settings' => \App\Models\SiteSetting::all()->pluck('value', 'key')->toArray(),
+            'profile' => \App\Models\Profile::first(),
         ];
     }
 }
