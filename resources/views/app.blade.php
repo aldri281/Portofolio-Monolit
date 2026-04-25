@@ -206,10 +206,10 @@
                 top: 0;
                 left: 0;
                 height: 100%;
-                width: 33.333333%;
+                width: 30%;
                 background: linear-gradient(to right, rgba(255, 255, 255, 0.5), white);
                 border-radius: 9999px;
-                animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+                transition: width 0.4s ease-out;
             }
 
             @keyframes pulse {
@@ -267,7 +267,7 @@
                         <span class="loader-label">Initializing Data Pipelines...</span>
                     </div>
                     <div class="loader-progress">
-                        <div class="loader-progress-bar"></div>
+                        <div id="loader-progress-bar" class="loader-progress-bar"></div>
                     </div>
                 </div>
             </div>
@@ -284,16 +284,16 @@
 
         <!-- Emergency Loader Fallback -->
         <script>
-            // If the app doesn't mount and remove the loader within 8 seconds, 
+            // If the app doesn't mount and remove the loader within 1 second, 
             // force remove it so the user isn't stuck.
             setTimeout(function() {
                 var loader = document.getElementById('global-loader');
                 if (loader) {
-                    console.warn('Inertia app took too long to mount. Force removing loader.');
+                    console.warn('Emergency timeout reached. Force removing loader.');
                     loader.style.opacity = '0';
                     setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
                 }
-            }, 8000);
+            }, 1000);
         </script>
     </body>
 </html>

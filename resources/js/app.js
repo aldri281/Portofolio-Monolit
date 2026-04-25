@@ -15,14 +15,24 @@ createInertiaApp({
 
         // Hide global loader after app is mounted
         const loader = document.getElementById('global-loader');
+        const progressBar = document.getElementById('loader-progress-bar');
+        
+        if (progressBar) {
+            progressBar.style.width = '100%';
+        }
+
         if (loader) {
-            console.log('App mounted, removing loader...');
-            loader.style.opacity = '0';
-            loader.style.pointerEvents = 'none'; // Prevent blocking clicks during fade
+            console.log('App mounted, completing loader...');
+            loader.style.pointerEvents = 'none'; 
+            
+            // Wait for progress bar to finish before fading out
             setTimeout(() => {
-                if (loader.parentNode) loader.remove();
-                console.log('Loader removed successfully.');
-            }, 600);
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    if (loader.parentNode) loader.remove();
+                    console.log('Loader removed successfully.');
+                }, 600);
+            }, 400);
         }
 
         return app;
