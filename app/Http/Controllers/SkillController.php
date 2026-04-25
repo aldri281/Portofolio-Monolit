@@ -28,6 +28,19 @@ class SkillController extends Controller
         session()->save();
         return redirect()->back();
     }
+    public function update(Request $request, Skill $skill)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'category' => 'required|string|max:255',
+            'icon' => 'nullable|string',
+        ]);
+
+        $skill->update($validated);
+        session()->flash('success', 'Skill updated.');
+        session()->save();
+        return redirect()->back();
+    }
 
     public function destroy(Skill $skill)
     {

@@ -29,6 +29,20 @@ class CertificateController extends Controller
         session()->save();
         return redirect()->back();
     }
+    public function update(Request $request, Certificate $certificate)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'organizer' => 'required|string|max:255',
+            'duration' => 'required|string|max:255',
+            'link' => 'nullable|url',
+        ]);
+
+        $certificate->update($validated);
+        session()->flash('success', 'Certificate updated.');
+        session()->save();
+        return redirect()->back();
+    }
 
     public function destroy(Certificate $certificate)
     {

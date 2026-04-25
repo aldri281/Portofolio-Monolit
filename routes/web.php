@@ -35,11 +35,13 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
     // Skills
     Route::get('/skills', [SkillController::class, 'index'])->name('admin.skills.index');
     Route::post('/skills', [SkillController::class, 'store'])->name('admin.skills.store');
+    Route::put('/skills/{skill}', [SkillController::class, 'update'])->name('admin.skills.update');
     Route::delete('/skills/{skill}', [SkillController::class, 'destroy'])->name('admin.skills.destroy');
 
     // Certificates
     Route::get('/certificates', [CertificateController::class, 'index'])->name('admin.certificates.index');
     Route::post('/certificates', [CertificateController::class, 'store'])->name('admin.certificates.store');
+    Route::put('/certificates/{certificate}', [CertificateController::class, 'update'])->name('admin.certificates.update');
     Route::delete('/certificates/{certificate}', [CertificateController::class, 'destroy'])->name('admin.certificates.destroy');
 
     // Settings

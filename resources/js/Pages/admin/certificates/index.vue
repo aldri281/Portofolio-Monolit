@@ -34,12 +34,17 @@
             <p class="text-white font-semibold text-sm">{{ cert.name }}</p>
             <p class="text-slate-500 text-xs mt-0.5">{{ cert.organizer }} · {{ cert.duration }}</p>
           </div>
-          <a v-if="cert.link" :href="cert.link" target="_blank" class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-[var(--accent-primary)] transition-all">
-            <span class="material-symbols-outlined text-xl">open_in_new</span>
-          </a>
-          <button @click="deleteCert(cert.id)" class="opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 transition-all">
-            <span class="material-symbols-outlined text-xl">delete</span>
-          </button>
+          <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+            <a v-if="cert.link" :href="cert.link" target="_blank" class="text-slate-500 hover:text-[var(--accent-primary)] transition-all p-1">
+              <span class="material-symbols-outlined text-xl">open_in_new</span>
+            </a>
+            <button @click="openEditModal(cert)" class="text-slate-500 hover:text-[var(--accent-primary)] transition-all p-1">
+              <span class="material-symbols-outlined text-xl">edit</span>
+            </button>
+            <button @click="deleteCert(cert.id)" class="text-slate-500 hover:text-red-400 transition-all p-1">
+              <span class="material-symbols-outlined text-xl">delete</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -67,6 +72,30 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Edit Modal -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <div v-if="showEditModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showEditModal = false">
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <h3 class="font-bold text-white text-lg">Edit Certificate</h3>
+            <div class="space-y-3">
+              <input v-model="editingCert.name" type="text" placeholder="Certificate name" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+              <input v-model="editingCert.organizer" type="text" placeholder="Organizer" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+              <input v-model="editingCert.duration" type="text" placeholder="Duration/Year" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+              <input v-model="editingCert.link" type="url" placeholder="Credential URL" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+            </div>
+            <div class="flex gap-3 pt-1">
+              <button @click="showEditModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 text-sm font-semibold hover:bg-slate-800 transition-colors">Cancel</button>
+              <button @click="updateCert" :disabled="saving" class="flex-1 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2">
+                <span v-if="saving" class="animate-spin material-symbols-outlined text-base">progress_activity</span>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -83,10 +112,12 @@ const props = defineProps({
 
 const showToast = inject('showToast')
 const showAddModal = ref(false)
+const showEditModal = ref(false)
 const saving = ref(false)
 const pending = false
 
 const newCert = ref({ name: '', organizer: '', duration: '', link: '' })
+const editingCert = ref({ id: null, name: '', organizer: '', duration: '', link: '' })
 
 const addCert = () => {
   if (!newCert.value.name) return
@@ -98,6 +129,24 @@ const addCert = () => {
       newCert.value = { name: '', organizer: '', duration: '', link: '' }
     },
     onError: () => showToast?.('Failed to add certificate', 'error'),
+    onFinish: () => saving.value = false
+  })
+}
+
+const openEditModal = (cert) => {
+  editingCert.value = { ...cert }
+  showEditModal.value = true
+}
+
+const updateCert = () => {
+  if (!editingCert.value.name) return
+  saving.value = true
+  router.put(`/admin/certificates/${editingCert.value.id}`, editingCert.value, {
+    onSuccess: () => {
+      showToast?.('Certificate updated!')
+      showEditModal.value = false
+    },
+    onError: () => showToast?.('Failed to update certificate', 'error'),
     onFinish: () => saving.value = false
   })
 }

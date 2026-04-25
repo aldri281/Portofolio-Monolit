@@ -33,9 +33,14 @@
           <p class="text-white font-semibold truncate">{{ skill.name }}</p>
           <p class="text-slate-500 text-xs mt-0.5">{{ skill.category }}</p>
         </div>
-        <button @click="deleteSkill(skill.id)" class="opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-400 transition-all">
-          <span class="material-symbols-outlined text-xl">delete</span>
-        </button>
+        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all">
+          <button @click="openEditModal(skill)" class="text-slate-600 hover:text-[var(--accent-primary)] transition-all p-1">
+            <span class="material-symbols-outlined text-xl">edit</span>
+          </button>
+          <button @click="deleteSkill(skill.id)" class="text-slate-600 hover:text-red-400 transition-all p-1">
+            <span class="material-symbols-outlined text-xl">delete</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -68,6 +73,36 @@
         </div>
       </Transition>
     </Teleport>
+
+    <!-- Edit Modal -->
+    <Teleport to="body">
+      <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
+        <div v-if="showEditModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showEditModal = false">
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
+            <h3 class="font-bold text-white text-lg">Edit Skill</h3>
+
+            <div class="space-y-3">
+              <input v-model="editingSkill.name" type="text" placeholder="Skill name" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+              <input v-model="editingSkill.category" type="text" placeholder="Category" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+              <div class="relative">
+                <input v-model="editingSkill.icon" type="text" placeholder="Icon" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+                <div class="absolute right-3 top-1/2 -translate-y-1/2">
+                  <span class="material-symbols-outlined text-xl text-[var(--accent-primary)]">{{ editingSkill.icon || 'help' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex gap-3 pt-1">
+              <button @click="showEditModal = false" class="flex-1 py-2.5 rounded-xl border border-slate-700 text-slate-400 text-sm font-semibold hover:bg-slate-800 transition-colors">Cancel</button>
+              <button @click="updateSkill" :disabled="saving" class="flex-1 py-2.5 rounded-xl bg-[var(--accent-primary)] text-white text-sm font-semibold hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                <span v-if="saving" class="animate-spin material-symbols-outlined text-base">progress_activity</span>
+                Update
+              </button>
+            </div>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -84,10 +119,12 @@ const props = defineProps({
 
 const showToast = inject('showToast')
 const showAddModal = ref(false)
+const showEditModal = ref(false)
 const saving = ref(false)
 const pending = false
 
 const newSkill = ref({ name: '', category: '', icon: '' })
+const editingSkill = ref({ id: null, name: '', category: '', icon: '' })
 
 const addSkill = () => {
   if (!newSkill.value.name) return
@@ -99,6 +136,24 @@ const addSkill = () => {
       newSkill.value = { name: '', category: '', icon: '' }
     },
     onError: () => showToast?.('Failed to add skill', 'error'),
+    onFinish: () => saving.value = false
+  })
+}
+
+const openEditModal = (skill) => {
+  editingSkill.value = { ...skill }
+  showEditModal.value = true
+}
+
+const updateSkill = () => {
+  if (!editingSkill.value.name) return
+  saving.value = true
+  router.put(`/admin/skills/${editingSkill.value.id}`, editingSkill.value, {
+    onSuccess: () => {
+      showToast?.('Skill updated!')
+      showEditModal.value = false
+    },
+    onError: () => showToast?.('Failed to update skill', 'error'),
     onFinish: () => saving.value = false
   })
 }
