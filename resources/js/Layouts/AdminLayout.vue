@@ -43,7 +43,7 @@
           View Portfolio
         </Link>
         <Link
-          href="/logout"
+          href="/admin/logout"
           method="post"
           as="button"
           class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:text-red-400 hover:bg-red-900/20 transition-all text-left"
