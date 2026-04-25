@@ -206,7 +206,7 @@
                 top: 0;
                 left: 0;
                 height: 100%;
-                width: 30%;
+                width: 10%; /* Start from 10% */
                 background: linear-gradient(to right, rgba(255, 255, 255, 0.5), white);
                 border-radius: 9999px;
                 transition: width 0.4s ease-out;
@@ -282,18 +282,35 @@
 
         @inertia
 
-        <!-- Emergency Loader Fallback -->
+        <!-- Emergency Loader Fallback & Dynamic Progress -->
         <script>
-            // If the app doesn't mount and remove the loader within 1 second, 
-            // force remove it so the user isn't stuck.
-            setTimeout(function() {
-                var loader = document.getElementById('global-loader');
-                if (loader) {
-                    console.warn('Emergency timeout reached. Force removing loader.');
-                    loader.style.opacity = '0';
-                    setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
-                }
-            }, 1000);
+            (function() {
+                var pb = document.getElementById('loader-progress-bar');
+                var width = 10;
+                
+                // Slowly grow progress to 90%
+                var progressInterval = setInterval(function() {
+                    if (width < 90) {
+                        width += (90 - width) * 0.05; // Ease out growth
+                        if (pb) pb.style.width = width + '%';
+                    } else {
+                        clearInterval(progressInterval);
+                    }
+                }, 400);
+
+                // Global reference so app.js can clear it
+                window.loaderProgressInterval = progressInterval;
+
+                // Emergency timeout: Force remove if app fails to mount in 10s
+                setTimeout(function() {
+                    var loader = document.getElementById('global-loader');
+                    if (loader) {
+                        console.warn('Emergency timeout reached. Force removing loader.');
+                        loader.style.opacity = '0';
+                        setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
+                    }
+                }, 10000); // 10s fallback for better UX than 1s
+            })();
         </script>
     </body>
 </html>

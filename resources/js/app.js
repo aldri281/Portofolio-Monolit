@@ -17,6 +17,10 @@ createInertiaApp({
         const loader = document.getElementById('global-loader');
         const progressBar = document.getElementById('loader-progress-bar');
         
+        if (window.loaderProgressInterval) {
+            clearInterval(window.loaderProgressInterval);
+        }
+
         if (progressBar) {
             progressBar.style.width = '100%';
         }
