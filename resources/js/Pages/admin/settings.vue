@@ -153,9 +153,11 @@ const inputClass = {
 const form = ref({})
 
 // Initialize form from props
-onMounted(() => {
-  form.value = { ...(page.props.settings || {}) }
-})
+watch(() => page.props.settings, (newSettings) => {
+  if (newSettings) {
+    form.value = { ...newSettings }
+  }
+}, { immediate: true, deep: true })
 
 const saveSettings = () => {
   saving.value = true
