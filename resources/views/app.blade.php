@@ -301,7 +301,7 @@
                 // Global reference so app.js can clear it
                 window.loaderProgressInterval = progressInterval;
 
-                // Emergency timeout: Force remove if app fails to mount in 10s
+                // Emergency timeout: Force remove if app fails to mount in 3s
                 setTimeout(function() {
                     var loader = document.getElementById('global-loader');
                     if (loader) {
@@ -309,7 +309,7 @@
                         loader.style.opacity = '0';
                         setTimeout(function() { if(loader.parentNode) loader.remove(); }, 500);
                     }
-                }, 10000); // 10s fallback for better UX than 1s
+                }, 3000); 
             })();
         </script>
     </body>
