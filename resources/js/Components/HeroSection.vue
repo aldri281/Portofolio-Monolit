@@ -11,17 +11,56 @@
         {{ profile?.bio || 'Data Engineer with a Forestry Engineering background, bringing systematic precision to data processing. Specializing in Data Warehouse construction, PostgreSQL optimization, and provincial-scale education data analysis.' }}
       </p>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-4 w-full sm:w-auto">
-        <a class="px-8 py-4 md:px-10 md:py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 button-radius font-semibold hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-black/50 text-center" href="#projects">
+        <a class="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-2 border-transparent button-radius font-semibold hover:scale-105 transition-all shadow-xl shadow-slate-200 dark:shadow-black/50 text-center flex items-center justify-center" href="#projects">
           View Case Studies
         </a>
-        <a 
-          v-if="profile?.resume_url"
-          class="px-8 py-4 md:px-10 md:py-5 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 button-radius font-semibold hover:border-accent-secondary dark:hover:border-accent-secondary hover:text-accent-secondary dark:hover:text-accent-secondary transition-all text-center" 
-          :href="profile.resume_url"
-          target="_blank"
-        >
-          Download Resume
-        </a>
+        <div class="relative" ref="resumeDropdown">
+          <button 
+            @click="isResumeOpen = !isResumeOpen"
+            class="w-full sm:w-auto px-8 py-4 md:px-10 md:py-5 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 button-radius font-semibold hover:border-accent-secondary dark:hover:border-accent-secondary hover:text-accent-secondary dark:hover:text-accent-secondary transition-all flex items-center justify-center"
+          >
+            <span>Download Resume</span>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="opacity-0 scale-95 -translate-y-2"
+            enter-to-class="opacity-100 scale-100 translate-y-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-from-class="opacity-100 scale-100 translate-y-0"
+            leave-to-class="opacity-0 scale-95 -translate-y-2"
+          >
+            <div v-if="isResumeOpen" class="absolute top-full left-0 mt-2 w-full bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-2xl z-50 overflow-hidden py-1.5 backdrop-blur-xl">
+              <a 
+                v-if="settings?.resume_link_en"
+                :href="settings.resume_link_en" 
+                target="_blank" 
+                @click="isResumeOpen = false"
+                class="block px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-accent-primary transition-all"
+              >
+                English
+              </a>
+              
+              <div class="h-px bg-slate-100 dark:bg-slate-800 mx-4"></div>
+
+              <a 
+                v-if="settings?.resume_link_id"
+                :href="settings.resume_link_id" 
+                target="_blank" 
+                @click="isResumeOpen = false"
+                class="block px-6 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/80 hover:text-accent-secondary transition-all"
+              >
+                Indonesia
+              </a>
+
+              <!-- Fallback if no links -->
+              <div v-if="!settings?.resume_link_en && !settings?.resume_link_id" class="px-6 py-3 text-center text-slate-400 text-xs italic">
+                No links yet
+              </div>
+            </div>
+          </Transition>
+        </div>
       </div>
     </div>
     
@@ -160,10 +199,28 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const settings = computed(() => page.props.settings || {});
 const profile = computed(() => page.props.profile || {});
+
+const isResumeOpen = ref(false);
+const resumeDropdown = ref<HTMLElement | null>(null);
+
+// Close dropdown on click outside
+const handleClickOutside = (event: MouseEvent) => {
+  if (resumeDropdown.value && !resumeDropdown.value.contains(event.target as Node)) {
+    isResumeOpen.value = false;
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', handleClickOutside);
+});
 </script>

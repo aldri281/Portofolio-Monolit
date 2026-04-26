@@ -17,17 +17,33 @@
     <div v-else class="grid md:grid-cols-3 gap-10">
       
       <!-- Dynamic Categories -->
-      <div v-for="(categorySkills, categoryName) in groupedSkills" :key="categoryName" class="glass-chip dark:bg-slate-900/50 soft-radius p-6 md:p-10 space-y-8 border border-slate-50 dark:border-slate-800 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-300">
+      <div v-for="(categorySkills, categoryName) in groupedSkills" :key="categoryName" 
+           class="glass-chip dark:bg-slate-900/50 soft-radius p-6 md:p-10 space-y-8 border border-slate-50 dark:border-slate-800 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 transition-all duration-300">
+        
         <div class="flex items-center gap-5 border-b border-slate-100 dark:border-slate-800 pb-6 transition-colors duration-300">
-          <div :class="['w-12 h-12 rounded-xl shadow-sm flex items-center justify-center transition-colors duration-300', getIconColorClass(categoryName)]" class="bg-white dark:bg-slate-800">
+          <div :class="['w-12 h-12 rounded-xl shadow-sm flex items-center justify-center transition-colors duration-300', getIconColorClass(categoryName)]" class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
             <span class="material-symbols-outlined text-2xl">{{ categorySkills[0]?.icon || 'widgets' }}</span>
           </div>
           <h3 class="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{{ categoryName }}</h3>
         </div>
-        <div class="flex flex-wrap gap-3">
-          <span v-for="skill in categorySkills" :key="skill.id" class="px-5 py-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 text-slate-600 dark:text-slate-300 font-medium text-sm shadow-sm transition-colors duration-300">
-            {{ skill.name }}
-          </span>
+
+        <div class="flex flex-wrap gap-4">
+          <div v-for="skill in categorySkills" :key="skill.id" 
+                class="w-16 h-16 flex items-center justify-center bg-white dark:bg-slate-800 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm transition-all duration-300 hover:scale-110 hover:-translate-y-1 hover:shadow-lg dark:hover:shadow-slate-800 hover:border-slate-300 dark:hover:border-slate-500 group relative cursor-help"
+                :title="skill.name">
+            
+            <img 
+              :src="getIconUrl(skill.name)" 
+              :alt="skill.name" 
+              class="w-8 h-8 transition-all duration-300 filter grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 drop-shadow-sm"
+              @error="handleImageError(skill.id)"
+              v-show="!imageErrors[skill.id]"
+            />
+            
+            <span v-show="imageErrors[skill.id]" class="text-[10px] font-bold text-slate-500 dark:text-slate-400 text-center px-1 break-words leading-tight transition-colors duration-300 group-hover:text-slate-900 dark:group-hover:text-white">
+              {{ skill.name }}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -36,7 +52,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
@@ -45,6 +61,25 @@ const pending = false;
 const error = null;
 
 const skills = computed(() => page.props.skills || []);
+
+const imageErrors = ref<Record<number, boolean>>({});
+
+const handleImageError = (id: number) => {
+  imageErrors.value[id] = true;
+};
+
+const getIconUrl = (name: string) => {
+  let slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+  
+  // Custom mapping for better matches
+  if (name.toLowerCase().includes('microsoft')) slug = 'microsoft';
+  if (slug === 'vuejs') slug = 'vuedotjs';
+  if (slug === 'nextjs') slug = 'nextdotjs';
+  if (slug === 'reactjs') slug = 'react';
+  if (slug === 'nodejs') slug = 'nodedotjs';
+  
+  return `https://cdn.simpleicons.org/${slug}`;
+};
 
 // Group skills by category
 const groupedSkills = computed(() => {

@@ -52,7 +52,10 @@
     <!-- Add Modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="showAddModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showAddModal = false">
+        <div v-if="showAddModal" 
+             class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" 
+             @mousedown="onBackdropMouseDown" 
+             @mouseup="onBackdropMouseUp($event, 'add')">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-white text-lg">Add Certificate</h3>
             <div class="space-y-3">
@@ -76,7 +79,10 @@
     <!-- Edit Modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="showEditModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showEditModal = false">
+        <div v-if="showEditModal" 
+             class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" 
+             @mousedown="onBackdropMouseDown" 
+             @mouseup="onBackdropMouseUp($event, 'edit')">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-white text-lg">Edit Certificate</h3>
             <div class="space-y-3">
@@ -115,6 +121,19 @@ const showAddModal = ref(false)
 const showEditModal = ref(false)
 const saving = ref(false)
 const pending = false
+
+// Prevent accidental modal close during text selection
+let isBackdropMouseDown = false;
+const onBackdropMouseDown = (e) => {
+  isBackdropMouseDown = e.target === e.currentTarget;
+};
+const onBackdropMouseUp = (e, modalType) => {
+  if (isBackdropMouseDown && e.target === e.currentTarget) {
+    if (modalType === 'add') showAddModal.value = false;
+    else showEditModal.value = false;
+  }
+  isBackdropMouseDown = false;
+};
 
 const newCert = ref({ name: '', organizer: '', duration: '', link: '' })
 const editingCert = ref({ id: null, name: '', organizer: '', duration: '', link: '' })

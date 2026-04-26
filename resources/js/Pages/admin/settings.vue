@@ -43,6 +43,14 @@
             <label class="text-xs font-semibold uppercase tracking-widest text-slate-500">Hero Icon 2</label>
             <input v-model="form.hero_icon_2" type="text" v-bind="inputClass" />
           </div>
+          <div class="space-y-1">
+            <label class="text-xs font-semibold uppercase tracking-widest text-slate-500">Resume Link (English)</label>
+            <input v-model="form.resume_link_en" type="text" v-bind="inputClass" placeholder="https://drive.google.com/..." />
+          </div>
+          <div class="space-y-1">
+            <label class="text-xs font-semibold uppercase tracking-widest text-slate-500">Resume Link (Indonesia)</label>
+            <input v-model="form.resume_link_id" type="text" v-bind="inputClass" placeholder="https://drive.google.com/..." />
+          </div>
         </div>
       </div>
 

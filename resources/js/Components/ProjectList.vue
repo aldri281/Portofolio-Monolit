@@ -138,7 +138,7 @@
         <div v-if="lightbox.isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-10 bg-slate-950/95 backdrop-blur-3xl select-none" @click.self="closeLightbox">
           
           <!-- Header/Controls -->
-          <div class="absolute top-0 inset-x-0 p-6 flex items-center justify-between z-[110] bg-gradient-to-b from-black/50 to-transparent">
+          <div class="absolute top-0 inset-x-0 p-6 flex items-center justify-between z-[110] bg-gradient-to-b from-black/50 to-transparent transition-opacity duration-300" :class="lightbox.zoom > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'">
             <div class="text-white/90">
                 <p class="text-sm font-mono opacity-60">FEATURED ARCHITECTURE</p>
                 <h4 class="text-lg font-bold">{{ lightbox.project?.title }}</h4>
@@ -165,35 +165,40 @@
             </div>
           </div>
           
-          <!-- Navigation Arrows -->
-          <div v-if="lightbox.project && lightbox.project.images.length > 1" class="absolute inset-x-0 flex items-center justify-between px-4 md:px-10 z-[105] pointer-events-none">
+          <!-- Navigation Arrows (Hidden on Mobile, Hidden when Zoomed) -->
+          <div v-if="lightbox.project && lightbox.project.images.length > 1" class="absolute inset-x-0 items-center justify-between px-4 md:px-10 z-[105] pointer-events-none transition-opacity duration-300 hidden md:flex" :class="lightbox.zoom > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'">
             <button 
                 @click="navigateLightbox(-1)"
-                class="pointer-events-auto w-14 h-14 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md text-white border border-white/5 hover:bg-white/10 transition-all hover:scale-110"
+                class="pointer-events-auto w-14 h-14 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-xl text-white border border-white/20 hover:bg-black/70 transition-all hover:scale-110 shadow-2xl"
             >
-                <span class="material-symbols-outlined text-3xl">chevron_left</span>
+                <span class="material-symbols-outlined text-4xl">chevron_left</span>
             </button>
             <button 
                 @click="navigateLightbox(1)"
-                class="pointer-events-auto w-14 h-14 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md text-white border border-white/5 hover:bg-white/10 transition-all hover:scale-110"
+                class="pointer-events-auto w-14 h-14 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-xl text-white border border-white/20 hover:bg-black/70 transition-all hover:scale-110 shadow-2xl"
             >
-                <span class="material-symbols-outlined text-3xl">chevron_right</span>
+                <span class="material-symbols-outlined text-4xl">chevron_right</span>
             </button>
           </div>
 
-          <!-- Image Container -->
           <div 
             class="relative w-full h-full flex items-center justify-center overflow-hidden"
             @mousemove="moveDrag"
             @mouseup="stopDrag"
             @mouseleave="stopDrag"
             @wheel.prevent="handleWheelZoom"
+            @touchstart="handleTouchStart"
+            @touchmove.prevent="handleTouchMove"
+            @touchend="handleTouchEnd"
           >
             <img 
               v-if="lightbox.project && lightbox.project.images[lightbox.index]"
               :src="formatDriveUrl(lightbox.project?.images[lightbox.index]?.image_url || '')" 
-              class="max-w-full max-h-full object-contain transition-transform duration-300 ease-out shadow-[0_0_100px_rgba(0,0,0,0.5)]"
-              :class="lightbox.zoom > 1 ? 'cursor-move' : 'cursor-zoom-in'"
+              class="max-w-full max-h-full object-contain shadow-[0_0_100px_rgba(0,0,0,0.5)] select-none"
+              :class="[
+                lightbox.zoom > 1 ? 'cursor-move' : 'cursor-zoom-in',
+                lightbox.isDragging ? 'transition-none' : 'transition-transform duration-300 ease-out'
+              ]"
               :style="{ 
                 transform: `scale(${lightbox.zoom}) translate(${lightbox.offsetX / lightbox.zoom}px, ${lightbox.offsetY / lightbox.zoom}px)` 
               }"
@@ -206,7 +211,7 @@
           </div>
 
           <!-- Footer/Counter -->
-          <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60">
+          <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 transition-opacity duration-300" :class="lightbox.zoom > 1 ? 'opacity-0 pointer-events-none' : 'opacity-100'">
             <p class="text-sm font-mono">{{ lightbox.index + 1 }} / {{ lightbox.project?.images.length }}</p>
             <div class="flex gap-1.5">
                 <div v-for="(_, i) in lightbox.project?.images" :key="i" 
@@ -257,7 +262,12 @@ const lightbox = ref({
   offsetX: 0,
   offsetY: 0,
   isDragging: false,
-  dragStart: { x: 0, y: 0 }
+  dragStart: { x: 0, y: 0 },
+  lastTap: 0,
+  initialPinchDist: 0,
+  initialZoom: 1,
+  touchStartX: 0,
+  touchStartY: 0
 })
 
 /**
@@ -325,34 +335,21 @@ const handleWheelZoom = (e: WheelEvent) => {
 }
 
 /**
- * Handles double-click to zoom dynamically where the user clicked
+ * Handles double-click to toggle zoom (Simplified for stability)
  */
-const handleDoubleClick = (e: MouseEvent) => {
+const handleDoubleClick = () => {
   if (!lightbox.value.isOpen) return
   
   if (lightbox.value.zoom > 1) {
-    // Zoom out completely
+    // Zoom out completely and reset position
     lightbox.value.zoom = 1
     lightbox.value.offsetX = 0
     lightbox.value.offsetY = 0
   } else {
-    // Target zoom level
-    const newZoom = 2.5
-    
-    // Get the image element and its bounding rect
-    const target = e.target as HTMLElement
-    const rect = target.getBoundingClientRect()
-    
-    // Calculate click position relative to the center of the image on screen
-    const clickX = e.clientX - (rect.left + rect.width / 2)
-    const clickY = e.clientY - (rect.top + rect.height / 2)
-    
-    // Calculate offsets so the clicked point stays stationary
-    lightbox.value.offsetX = clickX * (1 - newZoom)
-    lightbox.value.offsetY = clickY * (1 - newZoom)
-    
-    // Apply zoom
-    lightbox.value.zoom = newZoom
+    // Zoom in to a fixed comfortable level
+    lightbox.value.zoom = 2.5
+    lightbox.value.offsetX = 0
+    lightbox.value.offsetY = 0
   }
 }
 
@@ -377,6 +374,79 @@ const moveDrag = (e: MouseEvent) => {
 const stopDrag = () => {
   lightbox.value.isDragging = false
 }
+
+/**
+ * Touch Events for Mobile (Swipe, Pinch, Pan)
+ */
+const handleTouchStart = (e: TouchEvent) => {
+  const now = Date.now();
+  
+  if (e.touches.length > 0) {
+    lightbox.value.touchStartX = e.touches[0].clientX;
+    lightbox.value.touchStartY = e.touches[0].clientY;
+  }
+
+  // Double tap detection
+  if (now - lightbox.value.lastTap < 300 && e.touches.length === 1) {
+    handleDoubleClick();
+  }
+  lightbox.value.lastTap = now;
+
+  if (e.touches.length === 2) {
+    // Start Pinch
+    lightbox.value.initialPinchDist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    lightbox.value.initialZoom = lightbox.value.zoom;
+  } else if (e.touches.length === 1 && lightbox.value.zoom > 1) {
+    // Start Pan
+    startDrag({
+      clientX: e.touches[0].clientX,
+      clientY: e.touches[0].clientY
+    } as any);
+  }
+};
+
+const handleTouchMove = (e: TouchEvent) => {
+  if (e.touches.length === 2) {
+    // Handle Pinch Zoom
+    const dist = Math.hypot(
+      e.touches[0].clientX - e.touches[1].clientX,
+      e.touches[0].clientY - e.touches[1].clientY
+    );
+    const scale = dist / lightbox.value.initialPinchDist;
+    lightbox.value.zoom = Math.min(Math.max(lightbox.value.initialZoom * scale, 1), 5);
+  } else if (e.touches.length === 1 && lightbox.value.isDragging) {
+    // Handle Pan
+    moveDrag({
+      clientX: e.touches[0].clientX,
+      clientY: e.touches[0].clientY
+    } as any);
+  }
+};
+
+const handleTouchEnd = (e: TouchEvent) => {
+  stopDrag();
+  lightbox.value.initialPinchDist = 0;
+
+  // Swipe detection for navigation when not zoomed
+  if (lightbox.value.zoom === 1 && e.changedTouches && e.changedTouches.length === 1) {
+    const touchEndX = e.changedTouches[0].clientX;
+    const touchEndY = e.changedTouches[0].clientY;
+    const deltaX = touchEndX - lightbox.value.touchStartX;
+    const deltaY = Math.abs(touchEndY - lightbox.value.touchStartY);
+
+    // If moved horizontally significantly more than vertically
+    if (Math.abs(deltaX) > 50 && deltaY < 50) {
+      if (deltaX > 0) {
+        navigateLightbox(-1); // Swiped right
+      } else {
+        navigateLightbox(1);  // Swiped left
+      }
+    }
+  }
+};
 
 // Keyboard shortcuts
 const handleKeyDown = (e: KeyboardEvent) => {

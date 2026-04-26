@@ -61,15 +61,23 @@
       <slot />
     </main>
     
-    <!-- Footer -->
     <footer class="border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 transition-colors duration-300 relative z-10 mt-32">
-      <div class="max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-16 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-10 text-center md:text-left">
-        <div class="flex items-center gap-3">
+      <div class="max-w-7xl mx-auto px-6 md:px-12 py-12 md:py-16 grid grid-cols-1 md:grid-cols-3 items-center gap-8 text-center">
+        <!-- Left Column: Logo -->
+        <div class="flex items-center justify-center md:justify-start gap-3">
           <span class="material-symbols-outlined text-accent-secondary text-2xl">account_tree</span>
           <span class="font-bold text-xl text-slate-900 dark:text-white">{{ settings?.site_footer_name || 'Aldri Hardiansyah' }}</span>
         </div>
-        <p class="text-slate-400 dark:text-slate-500 text-sm font-light tracking-wide">© {{ new Date().getFullYear() }} {{ settings?.site_footer_name || 'Aldri Hardiansyah' }}. {{ settings?.site_footer_copyright || 'Data Engineer Portfolio.' }}</p>
-        <div class="flex items-center gap-6">
+
+        <!-- Center Column: Copyright -->
+        <div class="flex justify-center">
+          <p class="text-slate-400 dark:text-slate-500 text-sm font-light tracking-wide">
+            © {{ new Date().getFullYear() }} {{ settings?.site_footer_name || 'Aldri Hardiansyah' }}. {{ settings?.site_footer_copyright || 'Data Engineer Portfolio.' }}
+          </p>
+        </div>
+
+        <!-- Right Column: Socials -->
+        <div class="flex items-center justify-center md:justify-end gap-6">
           <a class="text-slate-400 dark:text-slate-500 hover:text-accent-primary transition-colors" :href="settings?.social_email || '#'">
             <span class="material-symbols-outlined">mail</span>
           </a>

@@ -47,15 +47,30 @@
     <!-- Add Modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="showAddModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showAddModal = false">
+        <div v-if="showAddModal" 
+             class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" 
+             @mousedown="onBackdropMouseDown" 
+             @mouseup="onBackdropMouseUp($event, 'add')">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-white text-lg">Add Skill</h3>
 
-            <div class="space-y-3">
-              <input v-model="newSkill.name" type="text" placeholder="Skill name (e.g. PostgreSQL)" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
-              <input v-model="newSkill.category" type="text" placeholder="Category (e.g. Database)" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+            <div class="space-y-3 relative z-50">
               <div class="relative">
-                <input v-model="newSkill.icon" type="text" placeholder="Icon (e.g. storage)" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+                <input v-model="newSkill.name" @focus="showSuggestionsAdd = true" @blur="hideSuggestions('add')" type="text" placeholder="Skill name (e.g. PostgreSQL)" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 shadow-inner">
+                  <img v-if="newSkill.name && !previewErrorAdd" :src="getIconUrl(newSkill.name)" @error="previewErrorAdd = true" @load="previewErrorAdd = false" class="w-5 h-5 object-contain filter grayscale" />
+                  <span v-else class="material-symbols-outlined text-sm text-slate-500">image</span>
+                </div>
+                <!-- Suggestions Add -->
+                <div v-if="showSuggestionsAdd && filteredSuggestionsAdd.length > 0" class="absolute z-[100] w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  <button v-for="s in filteredSuggestionsAdd" :key="s" @click.prevent="selectSuggestionAdd(s)" class="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-[var(--accent-primary)] hover:text-white transition-colors border-b border-slate-700/50 last:border-0">
+                    {{ s }}
+                  </button>
+                </div>
+              </div>
+              <input v-model="newSkill.category" type="text" placeholder="Category (e.g. Database)" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm relative z-40" />
+              <div class="relative z-30">
+                <input v-model="newSkill.icon" type="text" placeholder="Material Icon (e.g. storage)" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
                 <div class="absolute right-3 top-1/2 -translate-y-1/2">
                   <span class="material-symbols-outlined text-xl text-[var(--accent-primary)]">{{ newSkill.icon || 'help' }}</span>
                 </div>
@@ -77,15 +92,30 @@
     <!-- Edit Modal -->
     <Teleport to="body">
       <Transition enter-active-class="transition duration-200" enter-from-class="opacity-0" enter-to-class="opacity-100">
-        <div v-if="showEditModal" class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" @click.self="showEditModal = false">
+        <div v-if="showEditModal" 
+             class="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm" 
+             @mousedown="onBackdropMouseDown" 
+             @mouseup="onBackdropMouseUp($event, 'edit')">
           <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-sm w-full shadow-2xl space-y-4">
             <h3 class="font-bold text-white text-lg">Edit Skill</h3>
 
-            <div class="space-y-3">
-              <input v-model="editingSkill.name" type="text" placeholder="Skill name" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
-              <input v-model="editingSkill.category" type="text" placeholder="Category" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+            <div class="space-y-3 relative z-50">
               <div class="relative">
-                <input v-model="editingSkill.icon" type="text" placeholder="Icon" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+                <input v-model="editingSkill.name" @focus="showSuggestionsEdit = true" @blur="hideSuggestions('edit')" type="text" placeholder="Skill name" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
+                <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 border border-slate-700 shadow-inner">
+                  <img v-if="editingSkill.name && !previewErrorEdit" :src="getIconUrl(editingSkill.name)" @error="previewErrorEdit = true" @load="previewErrorEdit = false" class="w-5 h-5 object-contain filter grayscale" />
+                  <span v-else class="material-symbols-outlined text-sm text-slate-500">image</span>
+                </div>
+                <!-- Suggestions Edit -->
+                <div v-if="showSuggestionsEdit && filteredSuggestionsEdit.length > 0" class="absolute z-[100] w-full mt-2 bg-slate-800 border border-slate-700 rounded-xl shadow-xl max-h-48 overflow-y-auto">
+                  <button v-for="s in filteredSuggestionsEdit" :key="s" @click.prevent="selectSuggestionEdit(s)" class="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-[var(--accent-primary)] hover:text-white transition-colors border-b border-slate-700/50 last:border-0">
+                    {{ s }}
+                  </button>
+                </div>
+              </div>
+              <input v-model="editingSkill.category" type="text" placeholder="Category" class="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm relative z-40" />
+              <div class="relative z-30">
+                <input v-model="editingSkill.icon" type="text" placeholder="Material Icon" class="w-full px-4 py-3 pr-12 rounded-xl bg-slate-800 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:border-[var(--accent-primary)] text-sm" />
                 <div class="absolute right-3 top-1/2 -translate-y-1/2">
                   <span class="material-symbols-outlined text-xl text-[var(--accent-primary)]">{{ editingSkill.icon || 'help' }}</span>
                 </div>
@@ -107,7 +137,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
 import AdminLayout from '@/Layouts/AdminLayout.vue'
 
@@ -125,6 +155,107 @@ const pending = false
 
 const newSkill = ref({ name: '', category: '', icon: '' })
 const editingSkill = ref({ id: null, name: '', category: '', icon: '' })
+
+// Suggestions Logic
+const commonTools = [
+  // Data Engineering & Science
+  'Python', 'R', 'Jupyter', 'Pandas', 'NumPy', 'Scikit-learn', 'TensorFlow', 'PyTorch', 'Apache Spark', 'Apache Kafka', 'Apache Hadoop', 'Apache Airflow', 'Snowflake', 'Databricks', 'Tableau', 'Power BI', 'Looker', 'Google BigQuery', 'Amazon Redshift', 'dbt',
+  // Databases
+  'PostgreSQL', 'MySQL', 'SQLite', 'MariaDB', 'MongoDB', 'Redis', 'Cassandra', 'Elasticsearch', 'Firebase', 'Supabase', 'PlanetScale', 'Couchbase', 'Neo4j', 'Oracle', 'Microsoft SQL Server',
+  // GIS
+  'QGIS', 'ArcGIS', 'Esri', 'OpenStreetMap', 'Mapbox', 'Leaflet', 'PostGIS', 'Google Earth',
+  // Programming Languages
+  'HTML5', 'CSS3', 'JavaScript', 'TypeScript', 'PHP', 'Ruby', 'Go', 'Rust', 'C', 'C++', 'C#', 'Java', 'Kotlin', 'Swift', 'Dart', 'Scala', 'Haskell', 'Lua', 'Perl',
+  // Frameworks & Libraries
+  'Vue.js', 'React', 'Angular', 'Svelte', 'Next.js', 'Nuxt.js', 'Vite', 'Webpack', 'Tailwind CSS', 'Bootstrap', 'Sass', 'Node.js', 'Express', 'NestJS', 'Laravel', 'Symfony', 'Django', 'Flask', 'FastAPI', 'Spring Boot', 'ASP.NET', 'GraphQL', 'Apollo GraphQL', 'jQuery', 'Redux', 'Prisma', 'Drizzle ORM',
+  // Cloud & DevOps
+  'Docker', 'Kubernetes', 'AWS', 'Microsoft Azure', 'Google Cloud', 'Vercel', 'Netlify', 'Heroku', 'DigitalOcean', 'Cloudflare', 'Terraform', 'GitHub Actions', 'GitLab CI', 'CircleCI', 'Jenkins', 'Ansible', 'Prometheus', 'Grafana',
+  // Design & Office
+  'Figma', 'Adobe Photoshop', 'Adobe Illustrator', 'Adobe Premiere Pro', 'Adobe After Effects', 'Canva', 'Notion', 'Microsoft Office', 'Microsoft Excel', 'Microsoft Word', 'Microsoft PowerPoint', 'Slack', 'Discord', 'Trello', 'Asana', 'Jira',
+  // Version Control & Editor
+  'Git', 'GitHub', 'GitLab', 'Bitbucket', 'Visual Studio Code', 'IntelliJ IDEA', 'PyCharm', 'WebStorm', 'Android Studio', 'Xcode', 'Vim', 'Neovim', 'Sublime Text'
+];
+
+const showSuggestionsAdd = ref(false)
+const showSuggestionsEdit = ref(false)
+const previewErrorAdd = ref(false)
+const previewErrorEdit = ref(false)
+
+// Prevent accidental modal close during text selection
+let isBackdropMouseDown = false;
+const onBackdropMouseDown = (e) => {
+  isBackdropMouseDown = e.target === e.currentTarget;
+};
+const onBackdropMouseUp = (e, modalType) => {
+  if (isBackdropMouseDown && e.target === e.currentTarget) {
+    if (modalType === 'add') showAddModal.value = false;
+    else showEditModal.value = false;
+  }
+  isBackdropMouseDown = false;
+};
+
+const filteredSuggestionsAdd = computed(() => {
+  if (!newSkill.value.name) return commonTools;
+  return commonTools.filter(t => t.toLowerCase().includes(newSkill.value.name.toLowerCase()) && t.toLowerCase() !== newSkill.value.name.toLowerCase());
+});
+
+const filteredSuggestionsEdit = computed(() => {
+  if (!editingSkill.value.name) return commonTools;
+  return commonTools.filter(t => t.toLowerCase().includes(editingSkill.value.name.toLowerCase()) && t.toLowerCase() !== editingSkill.value.name.toLowerCase());
+});
+
+const selectSuggestionAdd = (s) => {
+  newSkill.value.name = s;
+  showSuggestionsAdd.value = false;
+  previewErrorAdd.value = false;
+};
+
+const selectSuggestionEdit = (s) => {
+  editingSkill.value.name = s;
+  showSuggestionsEdit.value = false;
+  previewErrorEdit.value = false;
+};
+
+const hideSuggestions = (type) => {
+  setTimeout(() => {
+    if (type === 'add') showSuggestionsAdd.value = false;
+    if (type === 'edit') showSuggestionsEdit.value = false;
+  }, 200);
+};
+
+const getIconUrl = (name) => {
+  if (!name) return '';
+  
+  // Map standard titles to Simple Icons slugs
+  let slug = name.toLowerCase()
+    .replace(/\+/g, 'plus')
+    .replace(/\#/g, 'sharp')
+    .replace(/\./g, 'dot')
+    .replace(/[^a-z0-9]/g, '');
+
+  // Handle specific overrides where the above logic isn't perfect
+  const overrides = {
+    'vuejs': 'vuedotjs',
+    'nodejs': 'nodedotjs',
+    'nextjs': 'nextdotjs',
+    'nuxtjs': 'nuxtdotjs',
+    'd3js': 'd3dotjs',
+    'googleearth': 'googleearth',
+    'googlecloud': 'googlecloud',
+    'microsoftoffice': 'microsoftoffice',
+    'microsoftexcel': 'microsoftexcel',
+    'microsoftword': 'microsoftword',
+    'microsoftpowerpoint': 'microsoftpowerpoint',
+    'aws': 'amazonwebservices',
+    'amazonwebservices': 'amazonwebservices',
+    'amazons3': 'amazons3',
+    'cplusplus': 'cplusplus',
+    'csharp': 'csharp',
+    'dotnet': 'dotnet',
+  };
+
+  return `https://cdn.simpleicons.org/${overrides[slug] || slug}`;
+};
 
 const addSkill = () => {
   if (!newSkill.value.name) return
